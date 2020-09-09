@@ -1,0 +1,66 @@
+group 'com.yy.awen.flutterthunderbolt'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.3.41'
+    repositories {
+        google()
+        jcenter()
+        maven {url "https://dl.bintray.com/yyqapm/maven"}
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven {url "https://dl.bintray.com/yyqapm/maven"}
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 28
+
+    sourceSets {
+        main.java.srcDirs += 'src/main'
+    }
+    defaultConfig {
+        minSdkVersion 19
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "boolean", "isDebug", "true"
+        }
+        release {
+            buildConfigField "boolean", "isDebug", "false"
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0-rc01'
+
+    implementation "com.rtc.thunder:thunderbolt:${thunder_version}"
+
+}

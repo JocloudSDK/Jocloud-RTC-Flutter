@@ -1,0 +1,60 @@
+
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+.pubspec.lock
+
+# android
+
+flutter_live_room.iml
+example/android/local.properties
+build/
+example/android/.gradle
+example/android/gradlew
+example/android/gradlew.bat
+example/ios/Pods
+example/ios/Flutter
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+
+**/.flutter-plugins
+**/.packages
+**/gradle/
+**/local.properties
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+*.idea/
+
+# Visual Studio Code related
+**/.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/.dart_tool/
+**/.flutter-plugins
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+*.lock
+
+**/App.framework
+**/Flutter.framework
+**/Generated.xcconfig
+
+**/ios/.symlinks/**
+**/ios/Runner.xcworkspace/**
+**/.flutter-plugins-dependencies
+Breakpoints_v2.xcbkptlist
+
