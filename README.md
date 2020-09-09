@@ -30,7 +30,7 @@ Modify dev_dependencies in pubspec.yaml
         ...
         flutterthunder:
             git:
-                url: https://github.com/JocloudSDK/Aivacom-RTC-Flutter.git
+                url: https://github.com/JocloudSDK/Jocloud-RTC-Flutter.git
                 ref: branch eg:thunder2919
         ...
 ```
