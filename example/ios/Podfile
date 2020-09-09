@@ -39,7 +39,7 @@ end
 
 
 def Media()
-    pod 'thunder', '2.8.0'
+    pod 'thunder', '2.9.20'
 end
 
 target 'Runner' do
