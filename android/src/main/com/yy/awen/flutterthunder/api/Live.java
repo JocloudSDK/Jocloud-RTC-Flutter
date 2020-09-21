@@ -37,6 +37,7 @@ import com.yy.videoplayer.videoview.VideoPosition;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -177,6 +178,12 @@ public class Live implements IMethodCall {
             return setRemotePlayType();
         } else if (call.method.equals("recordScreen")) {
             return recordScreen();
+        } else if (call.method.equals("registerVideoCaptureTextureObserver")) {
+            return registerVideoCaptureTextureObserver();
+        } else if (call.method.equals("registerVideoCaptureFrameObserver")) {
+            return registerVideoCaptureFrameObserver();
+        } else if (call.method.equals("registerVideoDecodeFrameObserver")) {
+            return registerVideoDecodeFrameObserver();
         }
         return false;
     }
@@ -795,6 +802,65 @@ public class Live implements IMethodCall {
     private boolean disableAudioEngine() {
         int value = LiveSDKManager.getInstance().disableAudioEngine();
         result.success(value);
+        return true;
+    }
+
+    private boolean registerVideoCaptureTextureObserver() {
+        com.yy.mediaframework.gpuimage.custom.IGPUProcess iGPUProcess =
+                new com.yy.mediaframework.gpuimage.custom.IGPUProcess() {
+                    @Override
+                    public void onInit(int textureTarget, int outputWidth, int outputHeight) {
+                        if (ThunderEventCallback.getInstance().getGPUProcess() != null) {
+                            ThunderEventCallback.getInstance().getGPUProcess().onInit(textureTarget, outputWidth,
+                                    outputHeight);
+                        }
+                    }
+
+                    @Override
+                    public void onDraw(int i, FloatBuffer floatBuffer) {
+                        if (ThunderEventCallback.getInstance().getGPUProcess() != null) {
+                            ThunderEventCallback.getInstance().getGPUProcess().onDraw(i, floatBuffer);
+                        }
+                    }
+
+                    @Override
+                    public void onDestroy() {
+                        if (ThunderEventCallback.getInstance().getGPUProcess() != null) {
+                            ThunderEventCallback.getInstance().getGPUProcess().onDestroy();
+                        }
+                    }
+
+                    @Override
+                    public void onOutputSizeChanged(int width, int height) {
+                        if (ThunderEventCallback.getInstance().getGPUProcess() != null) {
+                            ThunderEventCallback.getInstance().getGPUProcess().onOutputSizeChanged(width, height);
+                        }
+                    }
+                };
+        result.success(LiveSDKManager.getInstance().registerVideoCaptureTextureObserver(iGPUProcess));
+        return true;
+    }
+
+    private boolean registerVideoCaptureFrameObserver() {
+        com.thunder.livesdk.video.IVideoCaptureObserver observer = (width, height, data, length, imageFormat) -> {
+            if (ThunderEventCallback.getInstance().getVideoCaptureObserver() != null) {
+                ThunderEventCallback.getInstance().getVideoCaptureObserver().onCaptureVideoFrame(width, height, data,
+                        length, imageFormat);
+            }
+        };
+        result.success(LiveSDKManager.getInstance().registerVideoCaptureFrameObserver(observer));
+        return true;
+    }
+
+    private boolean registerVideoDecodeFrameObserver() {
+        String uid = call.argument("uid");
+        com.thunder.livesdk.video.IVideoDecodeObserver observer = (uid1, w, h, data, dateLen, renderTimeMs) -> {
+            if (ThunderEventCallback.getInstance().getVideoDecodeObserver() != null) {
+                ThunderEventCallback.getInstance().getVideoDecodeObserver().onVideoDecodeFrame(uid1, w, h, data,
+                        dateLen, renderTimeMs);
+            }
+        };
+        result.success(LiveSDKManager.getInstance().registerVideoDecodeFrameObserver(uid, observer));
         return true;
     }
 

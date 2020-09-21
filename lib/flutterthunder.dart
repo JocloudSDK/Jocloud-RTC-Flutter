@@ -5,6 +5,7 @@ export 'thunder_event.dart';
 export 'thunder_renderWidget.dart';
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterthunder/base_model.dart';
@@ -105,7 +106,7 @@ class FlutterThunder {
       }
     }
   }
-  
+
 
   static void _onBizAuthResult(Map data) {
     bool bPublish = data["bPublish"];
@@ -283,7 +284,7 @@ class FlutterThunder {
     print("$kLogTag - createEngine appid : $appId, area: $area, is64bitUid: $is64bitUid");
 
     assert(
-        appId != null, "failed: create engine appId is null"); //release 模式需要屏蔽
+    appId != null, "failed: create engine appId is null"); //release 模式需要屏蔽
     ///TODO: sdk暂时不支持多实例
     if (appId == null) {
       return;
@@ -312,7 +313,7 @@ class FlutterThunder {
   static Future<int> addSubscribe(String uid, String roomId) async {
     print("$kLogTag - addSubscribe uid : $uid, roomId: $roomId");
     assert(uid != null && roomId != null,
-        "failed: addSubscribe uid is $uid, roomId is $roomId");
+    "failed: addSubscribe uid is $uid, roomId is $roomId");
 
     if (uid == null || roomId == null) {
       return -1;
@@ -331,7 +332,7 @@ class FlutterThunder {
   static Future<int> removeSubscribe(String uid, String roomId) async {
     print("$kLogTag - removeSubscribe uid : $uid, roomId: $roomId");
     assert(uid != null && roomId != null,
-        "failed: removeSubscribe uid is $uid, roomId is $roomId ");
+    "failed: removeSubscribe uid is $uid, roomId is $roomId ");
     if (uid == null || roomId == null) {
       return -1;
     }
@@ -533,7 +534,7 @@ class FlutterThunder {
     };
     params.removeWhere((k, v) => v == null);
     int code =
-        await _channel.invokeMethod("enableCaptureVolumeIndication", params);
+    await _channel.invokeMethod("enableCaptureVolumeIndication", params);
     return code;
   }
 
@@ -575,7 +576,7 @@ class FlutterThunder {
       PublishVideoMode mode, PublishPlayType playType) async {
     print("$kLogTag - setVideoEncoderConfig videoMode: $mode, publishPlayType: $playType");
     assert(mode != null && playType != null,
-        "failed: setVideoEncoderConfig videoMode: $mode, playType: $playType");
+    "failed: setVideoEncoderConfig videoMode: $mode, playType: $playType");
     Map params = {
       "mode": intFromPublishVideoMode(mode),
       "playType": intFromPublishPlayType(playType)
@@ -595,7 +596,7 @@ class FlutterThunder {
     print("$kLogTag - setLocalVideoCanvas uid: $uid, viewId: $viewId, videoRenderMode: $mode");
 
     assert(viewId != null && uid != null,
-        "failed: setLocalVideoCanvas viewId is $viewId, uid is $uid");
+    "failed: setLocalVideoCanvas viewId is $viewId, uid is $uid");
     if (viewId == null || uid == null) {
       return -1;
     }
@@ -619,7 +620,7 @@ class FlutterThunder {
       return -1;
     }
     int code =
-        await _channel.invokeMethod("unbindLocalVideoCanvas", {"uid": uid});
+    await _channel.invokeMethod("unbindLocalVideoCanvas", {"uid": uid});
     return code;
   }
 
@@ -635,7 +636,7 @@ class FlutterThunder {
     print("$kLogTag - setRemoteVideoCanvas uid: $uid, viewId: $viewId, videoRenderMode: $mode, seatIndex: $seatIndex");
 
     assert(viewId != null && uid != null,
-        "failed: setRemoteVideoCanvas viewId is $viewId, uid is $uid");
+    "failed: setRemoteVideoCanvas viewId is $viewId, uid is $uid");
     if (viewId == null || uid == null) {
       return -1;
     }
@@ -661,7 +662,7 @@ class FlutterThunder {
       return -1;
     }
     int code =
-        await _channel.invokeMethod("unbindRemoteVideoCanvas", {"uid": uid});
+    await _channel.invokeMethod("unbindRemoteVideoCanvas", {"uid": uid});
     return code;
   }
 
@@ -725,6 +726,25 @@ class FlutterThunder {
     return code;
   }
 
+  static Future<int> registerVideoCaptureTextureObserver() async {
+    if (Platform.isAndroid) {
+      int ret = await _channel.invokeMethod("registerVideoCaptureTextureObserver");
+      return ret;
+    }
+    return 0;
+  }
+
+  static Future<int> registerVideoCaptureFrameObserver() async {
+    int ret = await _channel.invokeMethod("registerVideoCaptureFrameObserver");
+    return ret;
+  }
+
+  static Future<int> registerVideoDecodeFrameObserver(String uid) async {
+    Map param = {"uid": uid};
+    int ret = await _channel.invokeMethod("registerVideoDecodeFrameObserver", param);
+    return ret;
+  }
+
   static Future<int> setLocalVideoMirrorMode(VideoMirrorMode mode) async {
     print("$kLogTag - setLocalVideoMirrorMode mode: $mode");
 
@@ -738,7 +758,7 @@ class FlutterThunder {
     print("$kLogTag - setVideoCaptureOrientation orientation: $orientation");
     Map params = {"orientation": intFromVideoCaptureOrientation(orientation)};
     int code =
-        await _channel.invokeMethod("setVideoCaptureOrientation", params);
+    await _channel.invokeMethod("setVideoCaptureOrientation", params);
     return code;
   }
 
@@ -755,7 +775,7 @@ class FlutterThunder {
       MultiVideoViewCoordinate bgCoordinate,
       String bgImageName,
       [int viewIndex,
-      int viewId]) async {
+        int viewId]) async {
     print("$kLogTag - setMultiVideoViewLayout videoPositions: $videoPositions bgCoodinate: $bgCoordinate bgImageName:$bgImageName viewId: $viewId, viewIndex: $viewIndex");
 
     List positions = [];

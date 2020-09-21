@@ -1,5 +1,6 @@
 #import "FlutterthunderPlugin.h"
 #import "ThunderEngine.h"
+#import "ThunderEventHandler.h"
 
 static inline void dispatch_sync_on_main_queue(void (^block)(void))
 {
@@ -423,6 +424,19 @@ static NSString *const kImageAssetsName = @"images";
     BOOL stopped = [FlutterthunderPlugin boolFromArguments:params key:@"stopped"];
     int code = [self.thunderEngine stopAllRemoteVideoStreams:stopped];
     NSLog(@"%@ - stopAllRemoteVideoStreams stopped:%d, code:%d", kLog, stopped, code);
+    result([NSNumber numberWithInt:code]);
+}
+
+- (void)registerVideoCaptureFrameObserver:(NSDictionary *)params result:(FlutterResult)result
+{
+    int code = [self.thunderEngine registerVideoCaptureFrameObserver:[[ThunderEventHandler shareInstance] thunderVideoCaptureFrameObserver]];
+    result([NSNumber numberWithInt:code]);
+}
+
+- (void)registerVideoDecodeFrameObserver:(NSDictionary *)params result:(FlutterResult)result
+{
+    NSString *uid = [FlutterthunderPlugin stringFromArguments:params key:@"uid"];
+    int code = [self.thunderEngine registerVideoDecodeFrameObserver:[[ThunderEventHandler shareInstance] thunderVideoDecodeFrameObserver] uid:uid];
     result([NSNumber numberWithInt:code]);
 }
 
