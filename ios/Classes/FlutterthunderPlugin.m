@@ -1,6 +1,5 @@
 #import "FlutterthunderPlugin.h"
 #import "ThunderEngine.h"
-#import "ThunderEventHandler.h"
 
 static inline void dispatch_sync_on_main_queue(void (^block)(void))
 {
@@ -41,7 +40,7 @@ static NSString *const kImageAssetsName = @"images";
 @end
 
 
-@interface FlutterthunderPlugin()<FlutterStreamHandler,ThunderRtcLogDelegate,ThunderRtcLogDelegate,ThunderEventDelegate>
+@interface FlutterthunderPlugin()<FlutterStreamHandler,ThunderRtcLogDelegate,ThunderRtcLogDelegate,ThunderEventDelegate,ThunderVideoCaptureFrameObserver,ThunderVideoDecodeFrameObserver>
 @property (strong, nonatomic) ThunderEngine *thunderEngine;
 @property (strong, nonatomic, readwrite) FlutterMethodChannel *methodChannel;
 @property (strong, nonatomic) FlutterEventChannel *eventChannel;
@@ -429,14 +428,14 @@ static NSString *const kImageAssetsName = @"images";
 
 - (void)registerVideoCaptureFrameObserver:(NSDictionary *)params result:(FlutterResult)result
 {
-    int code = [self.thunderEngine registerVideoCaptureFrameObserver:[[ThunderEventHandler shareInstance] thunderVideoCaptureFrameObserver]];
-    result([NSNumber numberWithInt:code]);
+   int code = [self.thunderEngine registerVideoCaptureFrameObserver:self];
+   result([NSNumber numberWithInt:code]);
 }
 
 - (void)registerVideoDecodeFrameObserver:(NSDictionary *)params result:(FlutterResult)result
 {
     NSString *uid = [FlutterthunderPlugin stringFromArguments:params key:@"uid"];
-    int code = [self.thunderEngine registerVideoDecodeFrameObserver:[[ThunderEventHandler shareInstance] thunderVideoDecodeFrameObserver] uid:uid];
+    int code = [self.thunderEngine registerVideoDecodeFrameObserver:self uid:uid];
     result([NSNumber numberWithInt:code]);
 }
 
@@ -480,13 +479,13 @@ static NSString *const kImageAssetsName = @"images";
     viewParam.bgCoordinate = [self map2Coordinate:bgCoodinateMap];
     viewParam.bgImageName =  [self.imageAssetsPath stringByAppendingPathComponent:[FlutterthunderPlugin stringFromArguments:params key:@"bgImageName"]];
     viewParam.videoPositions = postionsM.copy;
-    
+
     //多视图模式：viewId是flutter创建plateformView时分配的与UIView是唯一对应
     NSNumber *viewKey = [FlutterthunderPlugin numberFromArguments:params key:@"viewId"];
     viewParam.view = [FlutterthunderPlugin viewForId:viewKey];
     //坐标是要设置在哪个view上
     viewParam.viewId = [[FlutterthunderPlugin numberFromArguments:params key:@"viewIndex"] intValue];
-    
+
     int code = [self.thunderEngine setMultiVideoViewLayout: viewParam];
     NSLog(@"%@ - setMultiVideoViewLayout videoPositions: %@, bgCoordinate: %@, bgImageName:%@, viewId: %d, view:%@, code: %d", kLog, videoPositions, viewParam.bgCoordinate,viewParam.bgImageName,viewParam.viewId,viewParam.view, code);
     result([NSNumber numberWithInt:code]);
@@ -928,8 +927,9 @@ static NSString *const kImageAssetsName = @"images";
 */
 - (void)thunderEngine:(ThunderEngine *)engine onAudioCaptureStatus:(NSInteger)status
 {
-    
+
 }
+
 
 
 #pragma mark - helper
@@ -977,14 +977,14 @@ static NSString *const kImageAssetsName = @"images";
 + (BOOL)boolFromArguments:(NSDictionary *)params key:(NSString *)key
 {
     if (![params isKindOfClass:[NSDictionary class]]) {
-      return NO;
+        return NO;
     }
 
     NSNumber *value = [params valueForKey:key];
     if (![value isKindOfClass:[NSNumber class]]) {
-      return NO;
+        return NO;
     } else {
-      return [value boolValue];
+        return [value boolValue];
     }
 }
 
@@ -1059,6 +1059,27 @@ static NSString *const kImageAssetsName = @"images";
         self.eventSink = nil;
     }
     return nil;
+}
+
+- (ThunderVideoCaptureFrameDataType)needThunderVideoCaptureFrameDataType {
+    FlutterThunderVideoCaptureFrameDataType type = [self.flutterThunderVideoCaptureFrameObserver needThunderVideoCaptureFrameDataType];
+    if(type == THUNDER_VIDEO_CAPTURE_DATATYPE_PIXELBUFFER){
+        return THUNDER_VIDEO_CAPTURE_DATATYPE_PIXELBUFFER;
+    }else{
+        return THUNDER_VIDEO_CAPTURE_DATATYPE_TEXTURE;
+    }
+}
+
+- (CVPixelBufferRef _Nullable)onVideoCaptureFrame:(EAGLContext * _Nonnull)glContext PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuf {
+    return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:glContext PixelBuffer:pixelBuf];
+}
+
+- (BOOL)onVideoCaptureFrame:(EAGLContext * _Nonnull)context PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer SourceTextureID:(unsigned int)srcTextureID DestinationTextureID:(unsigned int)dstTextureID TextureFormat:(int)textureFormat TextureTarget:(int)textureTarget TextureWidth:(int)width TextureHeight:(int)height {
+    return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:context PixelBuffer:pixelBuffer SourceTextureID:srcTextureID DestinationTextureID:dstTextureID TextureFormat:textureFormat TextureTarget:textureTarget TextureWidth:width TextureHeight:height];
+}
+
+- (void)onVideoDecodeFrame:(CVPixelBufferRef _Nonnull)pixelBuf pts:(uint64_t)pts uid:(NSString * _Nonnull)uid {
+    [self.flutterThunderVideoDecodeFrameObserver onVideoDecodeFrame:pixelBuf pts:pts uid:uid];
 }
 
 @end
