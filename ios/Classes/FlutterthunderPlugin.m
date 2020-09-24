@@ -689,6 +689,9 @@ static NSString *const kImageAssetsName = @"images";
 {
     NSLog(@"%@ - onLeaveRoomWithStats engin: %@,  stats: %@", kLog, engine, stats);
     [self sendEventWithName:@"onLeaveRoomWithStats" params:@{}];
+    if(self.flutterThunderEventDelegate != nil){
+        [self.flutterThunderEventDelegate onLeaveRoom];
+    }
 }
 
 /*!
@@ -1071,15 +1074,23 @@ static NSString *const kImageAssetsName = @"images";
 }
 
 - (CVPixelBufferRef _Nullable)onVideoCaptureFrame:(EAGLContext * _Nonnull)glContext PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuf {
-    return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:glContext PixelBuffer:pixelBuf];
+    if(self.flutterThunderVideoCaptureFrameObserver != nil){
+        return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:glContext PixelBuffer:pixelBuf];
+    }
+    return nil;
 }
 
 - (BOOL)onVideoCaptureFrame:(EAGLContext * _Nonnull)context PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer SourceTextureID:(unsigned int)srcTextureID DestinationTextureID:(unsigned int)dstTextureID TextureFormat:(int)textureFormat TextureTarget:(int)textureTarget TextureWidth:(int)width TextureHeight:(int)height {
-    return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:context PixelBuffer:pixelBuffer SourceTextureID:srcTextureID DestinationTextureID:dstTextureID TextureFormat:textureFormat TextureTarget:textureTarget TextureWidth:width TextureHeight:height];
+    if(self.flutterThunderVideoCaptureFrameObserver != nil){
+        return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:context PixelBuffer:pixelBuffer SourceTextureID:srcTextureID DestinationTextureID:dstTextureID TextureFormat:textureFormat TextureTarget:textureTarget TextureWidth:width TextureHeight:height];
+    }
+    return false;
 }
 
 - (void)onVideoDecodeFrame:(CVPixelBufferRef _Nonnull)pixelBuf pts:(uint64_t)pts uid:(NSString * _Nonnull)uid {
-    [self.flutterThunderVideoDecodeFrameObserver onVideoDecodeFrame:pixelBuf pts:pts uid:uid];
+    if(self.flutterThunderVideoDecodeFrameObserver != nil){
+        [self.flutterThunderVideoDecodeFrameObserver onVideoDecodeFrame:pixelBuf pts:pts uid:uid];
+    }
 }
 
 @end

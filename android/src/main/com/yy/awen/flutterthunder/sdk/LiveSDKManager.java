@@ -58,6 +58,10 @@ public final class LiveSDKManager {
         return instance;
     }
 
+    public ThunderEngine getThunderEngine() {
+        return mYYLiveRtcEngine;
+    }
+
     public void addThunderEventHandler(AbsThunderEventHandler handler) {
         if (mThunderEventDispatcher == null) {
             return;

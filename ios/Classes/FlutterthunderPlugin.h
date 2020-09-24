@@ -7,6 +7,10 @@ typedef NS_ENUM(NSInteger, FlutterThunderVideoCaptureFrameDataType)
     FLUTTER_THUNDER_VIDEO_CAPTURE_DATATYPE_TEXTURE = 1,
 };
 
+@protocol FlutterThunderEventDelegate <NSObject>
+- (void) onLeaveRoom;
+@end
+
 /**
  @protocol
  @brief Proxy interface for video frame preprocessing
@@ -73,6 +77,7 @@ typedef NS_ENUM(NSInteger, FlutterThunderVideoCaptureFrameDataType)
 
 @property (strong, nonatomic, readwrite) id<FlutterThunderVideoCaptureFrameObserver> _Nullable flutterThunderVideoCaptureFrameObserver;
 @property (strong, nonatomic, readwrite) id<FlutterThunderVideoDecodeFrameObserver> _Nullable flutterThunderVideoDecodeFrameObserver;
+@property (strong, nonatomic, readwrite) id<FlutterThunderEventDelegate> _Nullable flutterThunderEventDelegate;
 
 
 + (instancetype)sharedPlugin;

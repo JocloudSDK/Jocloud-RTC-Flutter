@@ -3,7 +3,7 @@
 #import <flutterthunder/FlutterthunderPlugin.h>
 
 
-@interface AppDelegate()<FlutterThunderVideoCaptureFrameObserver,FlutterThunderVideoDecodeFrameObserver>
+@interface AppDelegate()<FlutterThunderVideoCaptureFrameObserver,FlutterThunderVideoDecodeFrameObserver,FlutterThunderEventDelegate>
 
 @end
 
@@ -15,7 +15,7 @@
     // Override point for customization after application launch.
 
     [FlutterthunderPlugin sharedPlugin].flutterThunderVideoCaptureFrameObserver = self;
-
+    [FlutterthunderPlugin sharedPlugin].flutterThunderEventDelegate = self;
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -33,6 +33,9 @@
 //}
 //
 //- (void)onVideoDecodeFrame:(CVPixelBufferRef _Nonnull)pixelBuf pts:(uint64_t)pts uid:(NSString * _Nonnull)uid {
+//    <#code#>
+//}
+//- (void)onLeaveRoom {
 //    <#code#>
 //}
 
