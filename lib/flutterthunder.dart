@@ -769,6 +769,11 @@ class FlutterThunder {
     return code;
   }
 
+  static Future<int> setEnableInEarMonitor(bool enable) async{
+    Map params = {"enable": enable};
+    return await _channel.invokeMethod('setEnableInEarMonitor', params);
+  }
+
   ///新增接口 混流多人连麦场景使用
   static Future<int> setMultiVideoViewLayout(
       List<MultiVideoViewCoordinate> videoPositions,

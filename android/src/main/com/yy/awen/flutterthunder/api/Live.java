@@ -184,6 +184,8 @@ public class Live implements IMethodCall {
             return registerVideoCaptureFrameObserver();
         } else if (call.method.equals("registerVideoDecodeFrameObserver")) {
             return registerVideoDecodeFrameObserver();
+        }else if (call.method.equals("setEnableInEarMonitor")) {
+            return setEnableInEarMonitor();
         }
         return false;
     }
@@ -864,5 +866,9 @@ public class Live implements IMethodCall {
         return true;
     }
 
-
+    private boolean setEnableInEarMonitor() {
+        boolean enable = call.argument("enable");
+        result.success(LiveSDKManager.getInstance().setEnableInEarMonitor(enable));
+        return true;
+    }
 }

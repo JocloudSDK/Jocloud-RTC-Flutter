@@ -463,6 +463,13 @@ static NSString *const kImageAssetsName = @"images";
     result([NSNumber numberWithInt:code]);
 }
 
+- (void)setEnableInEarMonitor:(NSDictionary *)params result:(FlutterResult)result
+{
+    BOOL enable = [FlutterthunderPlugin boolFromArguments:params key:@"enable"];
+    int code = [self.thunderEngine setEnableInEarMonitor:enable];
+    result([NSNumber numberWithInt:code]);
+}
+
 - (void)setMultiVideoViewLayout:(NSDictionary *)params result:(FlutterResult)result
 {
     NSArray *videoPositions = [FlutterthunderPlugin arrayFromArguments:params key:@"videoPositions"];
