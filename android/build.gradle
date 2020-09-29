@@ -6,7 +6,7 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven {url "https://dl.bintray.com/yyqapm/maven"}
+        maven {url "http://repo.yypm.com:8181/nexus/content/groups/public"}
     }
 
     dependencies {
@@ -19,7 +19,7 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
-        maven {url "https://dl.bintray.com/yyqapm/maven"}
+        maven {url "http://repo.yypm.com:8181/nexus/content/groups/public"}
     }
 }
 
