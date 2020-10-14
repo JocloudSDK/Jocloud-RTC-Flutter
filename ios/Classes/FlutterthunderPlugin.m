@@ -304,9 +304,17 @@ static NSString *const kImageAssetsName = @"images";
     NSInteger renderMode = [FlutterthunderPlugin intFromArguments:params key:@"renderMode"];
     NSString *uid = [FlutterthunderPlugin stringFromArguments:params key:@"uid"];
     NSAssert(uid != nil, @"failed :setLocalVideoCanvas uid is nil");
+    if(uid == nil){
+        result(@-13);
+        return;
+    }
     UIView *renderView = [FlutterthunderPlugin viewForId:viewId];
 
     NSAssert(renderView != nil, @"setLocalVideoCanvas renderView is nil");
+    if(renderView == nil){
+        result(@-13);
+        return;
+    }
     ThunderVideoCanvas *canvas = [[ThunderVideoCanvas alloc] init];
     canvas.view = renderView;
     canvas.renderMode = renderMode;
