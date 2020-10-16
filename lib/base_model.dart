@@ -124,6 +124,11 @@ int intFromPublishVideoMode(PublishVideoMode mode) {
   return mode.index;
 }
 
+enum AreaType {
+  THUNDER_AREA_DEFAULT, //0	默认值（国内），等同于 THUNDER_AREA_RESERVED(1)
+  THUNDER_AREA_FOREIGN, //1 国外
+}
+
 /*
 * 摄像头镜像
 * */
@@ -392,6 +397,36 @@ class RtcAudioVolumeInfo {
   }
 }
 
+enum NetworkType {
+  THUNDER_NETWORK_TYPE_UNKNOWN, //(0)	未能识别网络类型
+  THUNDER_NETWORK_TYPE_DISCONNECTED, //(1)	网络不通
+  THUNDER_NETWORK_TYPE_CABLE, //(2)	有线网络
+  THUNDER_NETWORK_TYPE_WIFI, //(3)	无线Wi-Fi，含wifi热点
+  THUNDER_NETWORK_TYPE_MOBILE, //(4)	移动网络，没能区分2G,3G,4G网络
+  THUNDER_NETWORK_TYPE_MOBILE_2G, //(5)	2G
+  THUNDER_NETWORK_TYPE_MOBILE_3G, //(6)	3G
+  THUNDER_NETWORK_TYPE_MOBILE_4G, //(7)	4G
+}
+
+NetworkType networkTypeFromInt(int type) {
+  if (type == 1) {
+    return NetworkType.THUNDER_NETWORK_TYPE_DISCONNECTED;
+  } else if (type == 2) {
+    return NetworkType.THUNDER_NETWORK_TYPE_CABLE;
+  } else if (type == 3) {
+    return NetworkType.THUNDER_NETWORK_TYPE_WIFI;
+  } else if (type == 4) {
+    return NetworkType.THUNDER_NETWORK_TYPE_MOBILE;
+  } else if (type == 5) {
+    return NetworkType.THUNDER_NETWORK_TYPE_MOBILE_2G;
+  } else if (type == 6) {
+    return NetworkType.THUNDER_NETWORK_TYPE_MOBILE_3G;
+  } else if (type == 7) {
+    return NetworkType.THUNDER_NETWORK_TYPE_MOBILE_4G;
+  }
+  return NetworkType.THUNDER_NETWORK_TYPE_UNKNOWN;
+}
+
 /*
  * 美颜滤镜风格
  */
@@ -401,4 +436,8 @@ enum ThunderBeautyLookUpTable {
   SPRING,
   SWEET,
   WARM,
+}
+
+intFromEnum(dynamic enumVar, {int plus = 0}) {
+  return enumVar.index + plus;
 }
