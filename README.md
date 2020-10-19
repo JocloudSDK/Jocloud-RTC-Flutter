@@ -39,7 +39,7 @@ Modify dev_dependencies in pubspec.yaml
 1. What is the function of dev_dependencies ref？
 This plugin uses git branch to maintain the version 
 ```
-    ref: thunder2919 meaning use thunderbolt android:2.9.19,ios:2.9.20 version
+    ref: version
 
     The specific version of thunderbolt used by android and ios needs to be confirmed according to the code in the branch
 ```
