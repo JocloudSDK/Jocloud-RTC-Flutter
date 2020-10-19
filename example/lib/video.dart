@@ -299,7 +299,7 @@ class _NormalVideoLive extends State<NormalVideoLive> with ThunderEventHandler {
    @param type
  */
   @override
-  void onNetworkTypeChanged(int type) {}
+  void onNetworkTypeChanged(NetworkType type) {}
 
   /*
    @brief sdk与服务器的网络连接状态回调
