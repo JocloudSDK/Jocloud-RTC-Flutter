@@ -583,7 +583,7 @@ class _MixinVideoLive extends State<AndroidMixinVideoLive>
   }
 
   @override
-  void onNetworkTypeChanged(int type) {
+  void onNetworkTypeChanged(NetworkType type) {
     // TODO: implement onNetworkTypeChanged
   }
 
