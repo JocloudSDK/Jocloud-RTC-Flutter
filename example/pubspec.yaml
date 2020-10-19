@@ -18,6 +18,8 @@ dev_dependencies:
     sdk: flutter
 
   oktoast: ^2.2.0
+  
+  path_provider: ^1.6.21
 
   flutterthunder:
     path: ../
