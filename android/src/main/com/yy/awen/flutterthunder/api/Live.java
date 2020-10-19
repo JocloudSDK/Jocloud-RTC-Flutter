@@ -748,7 +748,7 @@ public class Live implements IMethodCall {
             // initRuntime
 //            initRuntime(registrar.activity().getApplication(), true);
 
-            LiveSDKManager.getInstance().initialize(registrar.activity().getApplication(), appId, area);
+            LiveSDKManager.getInstance().initialize(registrar.activity().getApplication(), appId, 0);
             LiveSDKManager.getInstance().setArea(area);
             LiveSDKManager.getInstance().setUse64bitUid(is64bitUid);
             isInit = true;
