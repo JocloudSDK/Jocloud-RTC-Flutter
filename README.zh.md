@@ -31,7 +31,7 @@
         flutterthunder:
             git:
                 url: https://github.com/JocloudSDK/Jocloud-RTC-Flutter.git
-                ref: branch eg:thunderbolt2919
+                ref: branch eg:1.0.0
         ...
 ```
 
@@ -39,7 +39,7 @@
 1. dev_dependencies的ref是什么作用？
 本插件使用git branch方式维护版本 
 ```
-    ref: thunder2919表示使用thunderbolt android:2.9.19,ios:2.9.20版本
+    ref: 版本号
 
     具体android、ios使用thunderbolt版本需要根据branch中代码确认
 ```
