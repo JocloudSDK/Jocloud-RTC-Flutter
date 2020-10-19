@@ -26,12 +26,17 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    FlutterThunder.createEngine(Constants.mAppId, Constants.mSceneId)
+    FlutterThunder.createEngine(Constants.mAppId, AreaType.THUNDER_AREA_DEFAULT)
         .then((onValue) {
       //打开用户音量回调，500毫秒回调一次
       FlutterThunder.setAudioVolumeIndication(500, 0, 0, 0);
       //打开麦克风音量回调, 500毫秒回调一次
       FlutterThunder.enableCaptureVolumeIndication(500, 0, 0, 0);
+    });
+    
+    getExternalStorageDirectory().then((dir) {
+      print('print path ${dir.path}');
+      FlutterThunder.setLogFilePath(dir.path);
     });
   }
 
