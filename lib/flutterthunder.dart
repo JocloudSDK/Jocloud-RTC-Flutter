@@ -5,6 +5,7 @@ export 'thunder_event.dart';
 export 'thunder_renderWidget.dart';
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterthunder/base_model.dart';
@@ -27,11 +28,8 @@ class FlutterThunder {
   static StreamSubscription<dynamic> _sink;
   static List<ThunderEventHandler> _handlers = [];
 
-
   static Future<void> _addEventChannelHandler() async {
-    _sink = _eventChannel
-        .receiveBroadcastStream(kEventChannel)
-        .listen(_onRcvBroadcast, onError: _onRcvBroadcastError);
+    _sink = _eventChannel.receiveBroadcastStream(kEventChannel).listen(_onRcvBroadcast, onError: _onRcvBroadcastError);
   }
 
   static Future<void> _removeEventChannelHandler() async {
@@ -105,7 +103,6 @@ class FlutterThunder {
       }
     }
   }
-  
 
   static void _onBizAuthResult(Map data) {
     bool bPublish = data["bPublish"];
@@ -189,7 +186,7 @@ class FlutterThunder {
   static void _onNetworkTypeChanged(Map data) {
     int type = data["type"];
     _handlers.forEach((handler) {
-      handler.onNetworkTypeChanged(type);
+      handler.onNetworkTypeChanged(networkTypeFromInt(type));
     });
   }
 
@@ -272,19 +269,15 @@ class FlutterThunder {
 
   /*
   * @brief 初始化,创建ThunderEngine
-  * 在yylivesdk.yy.com上创建app后，系统会分配唯一appId，初始化后appId不能修改
   * @param appId 接入app的唯一标识
-  * @param sceneId 场景Id
-  * @param delegate SDK通过此类向应用程序报告运行时的各种事件
+  * @param area 区域
   * */
-  static Future<void> createEngine(String appId, int area,
-      {bool is64bitUid = true}) async {
-    Map params = {"appId": appId, "area": area, "is64bitUid": is64bitUid};
-    print("$kLogTag - createEngine appid : $appId, area: $area, is64bitUid: $is64bitUid");
+  static Future<void> createEngine(String appId, AreaType areaType) async {
+    Map params = {"appId": appId, "area": intFromEnum(areaType), "is64bitUid": true};
+    print("$kLogTag - createEngine appid : $appId, area: ${intFromEnum(areaType)}");
 
-    assert(
-        appId != null, "failed: create engine appId is null"); //release 模式需要屏蔽
-    ///TODO: sdk暂时不支持多实例
+    assert(appId != null, "failed: create engine appId is null"); //release 模式需要屏蔽
+    //sdk暂时不支持多实例
     if (appId == null) {
       return;
     }
@@ -311,8 +304,7 @@ class FlutterThunder {
 
   static Future<int> addSubscribe(String uid, String roomId) async {
     print("$kLogTag - addSubscribe uid : $uid, roomId: $roomId");
-    assert(uid != null && roomId != null,
-        "failed: addSubscribe uid is $uid, roomId is $roomId");
+    assert(uid != null && roomId != null, "failed: addSubscribe uid is $uid, roomId is $roomId");
 
     if (uid == null || roomId == null) {
       return -1;
@@ -330,8 +322,7 @@ class FlutterThunder {
   * */
   static Future<int> removeSubscribe(String uid, String roomId) async {
     print("$kLogTag - removeSubscribe uid : $uid, roomId: $roomId");
-    assert(uid != null && roomId != null,
-        "failed: removeSubscribe uid is $uid, roomId is $roomId ");
+    assert(uid != null && roomId != null, "failed: removeSubscribe uid is $uid, roomId is $roomId ");
     if (uid == null || roomId == null) {
       return -1;
     }
@@ -464,9 +455,8 @@ class FlutterThunder {
     return code;
   }
 
-
-  static Future<int> setAudioConfig(RtcAudioConfig config,
-      RtcCommuteMode commuteMode, RtcScenarioMode scenarioMode) async {
+  static Future<int> setAudioConfig(
+      RtcAudioConfig config, RtcCommuteMode commuteMode, RtcScenarioMode scenarioMode) async {
     print("$kLogTag - setAudioConfig config: $config, commutMode: $commuteMode, scenarioMode: $scenarioMode");
     Map params = {
       "config": intFromRtcAudioConfig(config),
@@ -484,15 +474,10 @@ class FlutterThunder {
     await _channel.invokeMethod("setAudioSourceType", params);
   }
 
-  static Future<int> setAudioVolumeIndication(
-      int interval, int moreThanThd, int lessThanThd, int smooth) async {
-    print("$kLogTag - setAudioVolumeIndication interval: $interval, moreThanThd: $moreThanThd, lessThanThd: $lessThanThd, soomth:$smooth");
-    Map params = {
-      "interval": interval,
-      "moreThanThd": moreThanThd,
-      "lessThanThd": lessThanThd,
-      "soomth": smooth
-    };
+  static Future<int> setAudioVolumeIndication(int interval, int moreThanThd, int lessThanThd, int smooth) async {
+    print(
+        "$kLogTag - setAudioVolumeIndication interval: $interval, moreThanThd: $moreThanThd, lessThanThd: $lessThanThd, soomth:$smooth");
+    Map params = {"interval": interval, "moreThanThd": moreThanThd, "lessThanThd": lessThanThd, "soomth": smooth};
     params.removeWhere((k, v) => v == null);
     int code = await _channel.invokeMethod("setAudioVolumeIndication", params);
     return code;
@@ -521,19 +506,13 @@ class FlutterThunder {
     return code;
   }
 
-  static Future<int> enableCaptureVolumeIndication(
-      int interval, int moreThanThd, int lessThanThd, int smooth) async {
-    print("$kLogTag - setAudioVolumeIndication interval: $interval, moreThanThd: $moreThanThd, lessThanThd: $lessThanThd, soomth:$smooth");
+  static Future<int> enableCaptureVolumeIndication(int interval, int moreThanThd, int lessThanThd, int smooth) async {
+    print(
+        "$kLogTag - setAudioVolumeIndication interval: $interval, moreThanThd: $moreThanThd, lessThanThd: $lessThanThd, soomth:$smooth");
 
-    Map params = {
-      "interval": interval,
-      "moreThanThd": moreThanThd,
-      "lessThanThd": lessThanThd,
-      "soomth": smooth
-    };
+    Map params = {"interval": interval, "moreThanThd": moreThanThd, "lessThanThd": lessThanThd, "soomth": smooth};
     params.removeWhere((k, v) => v == null);
-    int code =
-        await _channel.invokeMethod("enableCaptureVolumeIndication", params);
+    int code = await _channel.invokeMethod("enableCaptureVolumeIndication", params);
     return code;
   }
 
@@ -563,7 +542,7 @@ class FlutterThunder {
     return code;
   }
 
-  static Future<void> setPlayVolume(String uid, int volume) async {
+  static Future<void> setRemoteAudioStreamsVolume(String uid, int volume) async {
     assert(uid != null, "failed: setPlayVolume uid is null");
     Map params = {"uid": uid, "volume": volume};
     int code = await _channel.invokeMethod("setPlayVolume", params);
@@ -571,15 +550,10 @@ class FlutterThunder {
   }
 
   //配置码率、推流类型
-  static Future<int> setVideoEncoderConfig(
-      PublishVideoMode mode, PublishPlayType playType) async {
+  static Future<int> setVideoEncoderConfig(PublishVideoMode mode, PublishPlayType playType) async {
     print("$kLogTag - setVideoEncoderConfig videoMode: $mode, publishPlayType: $playType");
-    assert(mode != null && playType != null,
-        "failed: setVideoEncoderConfig videoMode: $mode, playType: $playType");
-    Map params = {
-      "mode": intFromPublishVideoMode(mode),
-      "playType": intFromPublishPlayType(playType)
-    };
+    assert(mode != null && playType != null, "failed: setVideoEncoderConfig videoMode: $mode, playType: $playType");
+    Map params = {"mode": intFromPublishVideoMode(mode), "playType": intFromPublishPlayType(playType)};
     int code = await _channel.invokeMethod("setVideoEncoderConfig", params);
     return code;
   }
@@ -590,12 +564,10 @@ class FlutterThunder {
   * viewId: 请传入createNativeView方法onCreated中回调的viewId，否则会出错
   * mode: 试图显示模式
   * */
-  static Future<int> setLocalVideoCanvas(
-      String uid, int viewId, VideoRenderMode mode) async {
+  static Future<int> setLocalVideoCanvas(String uid, int viewId, VideoRenderMode mode) async {
     print("$kLogTag - setLocalVideoCanvas uid: $uid, viewId: $viewId, videoRenderMode: $mode");
 
-    assert(viewId != null && uid != null,
-        "failed: setLocalVideoCanvas viewId is $viewId, uid is $uid");
+    assert(viewId != null && uid != null, "failed: setLocalVideoCanvas viewId is $viewId, uid is $uid");
     if (viewId == null || uid == null) {
       return -1;
     }
@@ -618,8 +590,7 @@ class FlutterThunder {
     if (uid == null) {
       return -1;
     }
-    int code =
-        await _channel.invokeMethod("unbindLocalVideoCanvas", {"uid": uid});
+    int code = await _channel.invokeMethod("unbindLocalVideoCanvas", {"uid": uid});
     return code;
   }
 
@@ -630,12 +601,10 @@ class FlutterThunder {
   * mode: 视图显示模式
   * seatIndex: 麦序，多人混画模式连麦场景需要此参数，如9人连麦麦序从0~8
   * */
-  static Future<int> setRemoteVideoCanvas(
-      String uid, int viewId, VideoRenderMode mode, int seatIndex) async {
+  static Future<int> setRemoteVideoCanvas(String uid, int viewId, VideoRenderMode mode, int seatIndex) async {
     print("$kLogTag - setRemoteVideoCanvas uid: $uid, viewId: $viewId, videoRenderMode: $mode, seatIndex: $seatIndex");
 
-    assert(viewId != null && uid != null,
-        "failed: setRemoteVideoCanvas viewId is $viewId, uid is $uid");
+    assert(viewId != null && uid != null, "failed: setRemoteVideoCanvas viewId is $viewId, uid is $uid");
     if (viewId == null || uid == null) {
       return -1;
     }
@@ -660,8 +629,7 @@ class FlutterThunder {
     if (uid == null) {
       return -1;
     }
-    int code =
-        await _channel.invokeMethod("unbindRemoteVideoCanvas", {"uid": uid});
+    int code = await _channel.invokeMethod("unbindRemoteVideoCanvas", {"uid": uid});
     return code;
   }
 
@@ -673,8 +641,7 @@ class FlutterThunder {
     return code;
   }
 
-  static Future<int> setRemoteCanvasScaleMode(
-      String uid, VideoRenderMode mode) async {
+  static Future<int> setRemoteCanvasScaleMode(String uid, VideoRenderMode mode) async {
     print("$kLogTag - setRemoteCanvasScaleMode uid:$uid, mode: $mode");
 
     assert(uid != null, "failed:setRemoteCanvasScaleMode uid is null");
@@ -725,6 +692,25 @@ class FlutterThunder {
     return code;
   }
 
+  static Future<int> registerVideoCaptureTextureObserver() async {
+    if (Platform.isAndroid) {
+      int ret = await _channel.invokeMethod("registerVideoCaptureTextureObserver");
+      return ret;
+    }
+    return 0;
+  }
+
+  static Future<int> registerVideoCaptureFrameObserver() async {
+    int ret = await _channel.invokeMethod("registerVideoCaptureFrameObserver");
+    return ret;
+  }
+
+  static Future<int> registerVideoDecodeFrameObserver(String uid) async {
+    Map param = {"uid": uid};
+    int ret = await _channel.invokeMethod("registerVideoDecodeFrameObserver", param);
+    return ret;
+  }
+
   static Future<int> setLocalVideoMirrorMode(VideoMirrorMode mode) async {
     print("$kLogTag - setLocalVideoMirrorMode mode: $mode");
 
@@ -733,12 +719,10 @@ class FlutterThunder {
     return code;
   }
 
-  static Future<int> setVideoCaptureOrientation(
-      VideoCaptureOrientation orientation) async {
+  static Future<int> setVideoCaptureOrientation(VideoCaptureOrientation orientation) async {
     print("$kLogTag - setVideoCaptureOrientation orientation: $orientation");
     Map params = {"orientation": intFromVideoCaptureOrientation(orientation)};
-    int code =
-        await _channel.invokeMethod("setVideoCaptureOrientation", params);
+    int code = await _channel.invokeMethod("setVideoCaptureOrientation", params);
     return code;
   }
 
@@ -749,14 +733,17 @@ class FlutterThunder {
     return code;
   }
 
+  static Future<int> setEnableInEarMonitor(bool enable) async {
+    Map params = {"enable": enable};
+    return await _channel.invokeMethod('setEnableInEarMonitor', params);
+  }
+
   ///新增接口 混流多人连麦场景使用
   static Future<int> setMultiVideoViewLayout(
-      List<MultiVideoViewCoordinate> videoPositions,
-      MultiVideoViewCoordinate bgCoordinate,
-      String bgImageName,
-      [int viewIndex,
-      int viewId]) async {
-    print("$kLogTag - setMultiVideoViewLayout videoPositions: $videoPositions bgCoodinate: $bgCoordinate bgImageName:$bgImageName viewId: $viewId, viewIndex: $viewIndex");
+      List<MultiVideoViewCoordinate> videoPositions, MultiVideoViewCoordinate bgCoordinate, String bgImageName,
+      [int viewIndex, int viewId]) async {
+    print(
+        "$kLogTag - setMultiVideoViewLayout videoPositions: $videoPositions bgCoodinate: $bgCoordinate bgImageName:$bgImageName viewId: $viewId, viewIndex: $viewIndex");
 
     List positions = [];
     if (videoPositions.isNotEmpty) {
@@ -776,5 +763,4 @@ class FlutterThunder {
     int code = await _channel.invokeMethod("setMultiVideoViewLayout", params);
     return code;
   }
-
 }

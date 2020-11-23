@@ -13,6 +13,7 @@ import com.thunder.livesdk.ThunderRtcConstant;
 import com.thunder.livesdk.ThunderVideoCanvas;
 import com.thunder.livesdk.ThunderVideoEncoderConfiguration;
 import com.thunder.livesdk.video.IVideoCaptureObserver;
+import com.thunder.livesdk.video.IVideoDecodeObserver;
 import com.yy.mediaframework.gpuimage.custom.IGPUProcess;
 
 
@@ -55,6 +56,10 @@ public final class LiveSDKManager {
             }
         }
         return instance;
+    }
+
+    public ThunderEngine getThunderEngine() {
+        return mYYLiveRtcEngine;
     }
 
     public void addThunderEventHandler(AbsThunderEventHandler handler) {
@@ -665,4 +670,10 @@ public final class LiveSDKManager {
         return RTC_CALL_NO_INIT;
     }
 
+    public int registerVideoDecodeFrameObserver(String uid, IVideoDecodeObserver observer) {
+        if (mYYLiveRtcEngine != null) {
+            return mYYLiveRtcEngine.registerVideoDecodeFrameObserver(uid, observer);
+        }
+        return RTC_CALL_NO_INIT;
+    }
 }

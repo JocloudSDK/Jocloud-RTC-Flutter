@@ -40,7 +40,7 @@ static NSString *const kImageAssetsName = @"images";
 @end
 
 
-@interface FlutterthunderPlugin()<FlutterStreamHandler,ThunderRtcLogDelegate,ThunderRtcLogDelegate,ThunderEventDelegate>
+@interface FlutterthunderPlugin()<FlutterStreamHandler,ThunderRtcLogDelegate,ThunderRtcLogDelegate,ThunderEventDelegate,ThunderVideoCaptureFrameObserver,ThunderVideoDecodeFrameObserver>
 @property (strong, nonatomic) ThunderEngine *thunderEngine;
 @property (strong, nonatomic, readwrite) FlutterMethodChannel *methodChannel;
 @property (strong, nonatomic) FlutterEventChannel *eventChannel;
@@ -426,6 +426,19 @@ static NSString *const kImageAssetsName = @"images";
     result([NSNumber numberWithInt:code]);
 }
 
+- (void)registerVideoCaptureFrameObserver:(NSDictionary *)params result:(FlutterResult)result
+{
+   int code = [self.thunderEngine registerVideoCaptureFrameObserver:self];
+   result([NSNumber numberWithInt:code]);
+}
+
+- (void)registerVideoDecodeFrameObserver:(NSDictionary *)params result:(FlutterResult)result
+{
+    NSString *uid = [FlutterthunderPlugin stringFromArguments:params key:@"uid"];
+    int code = [self.thunderEngine registerVideoDecodeFrameObserver:self uid:uid];
+    result([NSNumber numberWithInt:code]);
+}
+
 - (void)setLocalVideoMirrorMode:(NSDictionary *)params result:(FlutterResult)result
 {
     NSInteger mirrorMode = [FlutterthunderPlugin intFromArguments:params key:@"mode"];
@@ -450,6 +463,13 @@ static NSString *const kImageAssetsName = @"images";
     result([NSNumber numberWithInt:code]);
 }
 
+- (void)setEnableInEarMonitor:(NSDictionary *)params result:(FlutterResult)result
+{
+    BOOL enable = [FlutterthunderPlugin boolFromArguments:params key:@"enable"];
+    int code = [self.thunderEngine setEnableInEarMonitor:enable];
+    result([NSNumber numberWithInt:code]);
+}
+
 - (void)setMultiVideoViewLayout:(NSDictionary *)params result:(FlutterResult)result
 {
     NSArray *videoPositions = [FlutterthunderPlugin arrayFromArguments:params key:@"videoPositions"];
@@ -466,13 +486,13 @@ static NSString *const kImageAssetsName = @"images";
     viewParam.bgCoordinate = [self map2Coordinate:bgCoodinateMap];
     viewParam.bgImageName =  [self.imageAssetsPath stringByAppendingPathComponent:[FlutterthunderPlugin stringFromArguments:params key:@"bgImageName"]];
     viewParam.videoPositions = postionsM.copy;
-    
+
     //多视图模式：viewId是flutter创建plateformView时分配的与UIView是唯一对应
     NSNumber *viewKey = [FlutterthunderPlugin numberFromArguments:params key:@"viewId"];
     viewParam.view = [FlutterthunderPlugin viewForId:viewKey];
     //坐标是要设置在哪个view上
     viewParam.viewId = [[FlutterthunderPlugin numberFromArguments:params key:@"viewIndex"] intValue];
-    
+
     int code = [self.thunderEngine setMultiVideoViewLayout: viewParam];
     NSLog(@"%@ - setMultiVideoViewLayout videoPositions: %@, bgCoordinate: %@, bgImageName:%@, viewId: %d, view:%@, code: %d", kLog, videoPositions, viewParam.bgCoordinate,viewParam.bgImageName,viewParam.viewId,viewParam.view, code);
     result([NSNumber numberWithInt:code]);
@@ -676,6 +696,9 @@ static NSString *const kImageAssetsName = @"images";
 {
     NSLog(@"%@ - onLeaveRoomWithStats engin: %@,  stats: %@", kLog, engine, stats);
     [self sendEventWithName:@"onLeaveRoomWithStats" params:@{}];
+    if(self.flutterThunderEventDelegate != nil){
+        [self.flutterThunderEventDelegate onLeaveRoom];
+    }
 }
 
 /*!
@@ -914,8 +937,9 @@ static NSString *const kImageAssetsName = @"images";
 */
 - (void)thunderEngine:(ThunderEngine *)engine onAudioCaptureStatus:(NSInteger)status
 {
-    
+
 }
+
 
 
 #pragma mark - helper
@@ -963,14 +987,14 @@ static NSString *const kImageAssetsName = @"images";
 + (BOOL)boolFromArguments:(NSDictionary *)params key:(NSString *)key
 {
     if (![params isKindOfClass:[NSDictionary class]]) {
-      return NO;
+        return NO;
     }
 
     NSNumber *value = [params valueForKey:key];
     if (![value isKindOfClass:[NSNumber class]]) {
-      return NO;
+        return NO;
     } else {
-      return [value boolValue];
+        return [value boolValue];
     }
 }
 
@@ -1045,6 +1069,35 @@ static NSString *const kImageAssetsName = @"images";
         self.eventSink = nil;
     }
     return nil;
+}
+
+- (ThunderVideoCaptureFrameDataType)needThunderVideoCaptureFrameDataType {
+    FlutterThunderVideoCaptureFrameDataType type = [self.flutterThunderVideoCaptureFrameObserver needThunderVideoCaptureFrameDataType];
+    if(type == THUNDER_VIDEO_CAPTURE_DATATYPE_PIXELBUFFER){
+        return THUNDER_VIDEO_CAPTURE_DATATYPE_PIXELBUFFER;
+    }else{
+        return THUNDER_VIDEO_CAPTURE_DATATYPE_TEXTURE;
+    }
+}
+
+- (CVPixelBufferRef _Nullable)onVideoCaptureFrame:(EAGLContext * _Nonnull)glContext PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuf {
+    if(self.flutterThunderVideoCaptureFrameObserver != nil){
+        return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:glContext PixelBuffer:pixelBuf];
+    }
+    return nil;
+}
+
+- (BOOL)onVideoCaptureFrame:(EAGLContext * _Nonnull)context PixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer SourceTextureID:(unsigned int)srcTextureID DestinationTextureID:(unsigned int)dstTextureID TextureFormat:(int)textureFormat TextureTarget:(int)textureTarget TextureWidth:(int)width TextureHeight:(int)height {
+    if(self.flutterThunderVideoCaptureFrameObserver != nil){
+        return [self.flutterThunderVideoCaptureFrameObserver onVideoCaptureFrame:context PixelBuffer:pixelBuffer SourceTextureID:srcTextureID DestinationTextureID:dstTextureID TextureFormat:textureFormat TextureTarget:textureTarget TextureWidth:width TextureHeight:height];
+    }
+    return false;
+}
+
+- (void)onVideoDecodeFrame:(CVPixelBufferRef _Nonnull)pixelBuf pts:(uint64_t)pts uid:(NSString * _Nonnull)uid {
+    if(self.flutterThunderVideoDecodeFrameObserver != nil){
+        [self.flutterThunderVideoDecodeFrameObserver onVideoDecodeFrame:pixelBuf pts:pts uid:uid];
+    }
 }
 
 @end

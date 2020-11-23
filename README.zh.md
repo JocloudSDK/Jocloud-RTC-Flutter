@@ -31,7 +31,7 @@
         flutterthunder:
             git:
                 url: https://github.com/JocloudSDK/Jocloud-RTC-Flutter.git
-                ref: branch eg:thunderbolt2919
+                ref: branch eg:3.0.0
         ...
 ```
 
